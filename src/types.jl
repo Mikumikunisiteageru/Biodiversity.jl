@@ -63,7 +63,7 @@ function check_c_indexed(cstable::AbstractCSTable, c::AbstractString)
 end
 
 struct DiscreteCSTable <: AbstractCSTable
-	cs::Matrix{Float32}
+	cs::BitMatrix
 	cindex::StrIndex
 	sindex::StrIndex
 	function DiscreteCSTable(cs::AbstractMatrix{<:Real}, 
@@ -72,8 +72,8 @@ struct DiscreteCSTable <: AbstractCSTable
 			throw(DimensionMismatch("the numbers of communities do not match"))
 		size(cs, 2) == length(sindex) || 
 			throw(DimensionMismatch("the numbers of species do not match"))
-		csf32 = Float32.(Bool.(cs)) # may throw an InexactError
-		return new(csf32, cindex, sindex)
+		csb = BitMatrix(cs) # may throw an InexactError
+		return new(csb, cindex, sindex)
 	end
 end
 
@@ -86,7 +86,7 @@ end
 function DiscreteCSTable(csrecords::AbstractVector{NTuple{2, String}})
 	cindex = StrIndex(sort!(unique!(first.(csrecords))))
 	sindex = StrIndex(sort!(unique!(last.(csrecords))))
-	cs = zeros(Float32, cindex.len, sindex.len)
+	cs = falses(cindex.len, sindex.len)
 	for (c, s) = csrecords
 		cs[cindex[c], sindex[s]] = 1f0
 	end
@@ -94,23 +94,21 @@ function DiscreteCSTable(csrecords::AbstractVector{NTuple{2, String}})
 end
 
 function DiscreteCSTable(filename::AbstractString; 
-		delim::AbstractChar='\t', sfirst::Bool=false)
+		delim::AbstractChar='\t', scpair::Bool=false)
 	rectable = readdlm(filename, delim, String)
 	size(rectable, 2) == 2 || throw(
 		DimensionMismatch("the TSV file does not contain exactly two columns"))
-	return sfirst ? 
+	return scpair ? 
 		DiscreteCSTable(reverse.(Tuple.(eachrow(rectable)))) : 
 		DiscreteCSTable(Tuple.(eachrow(rectable)))
 end	
 
-function ispresent(T::Type{<:Real}, cstable::DiscreteCSTable, 
+function ispresent(cstable::DiscreteCSTable, 
 		s::AbstractString, c::AbstractString)
 	check_s_indexed(cstable, s)
 	check_c_indexed(cstable, c)
-	return T(cstable.cs[cstable.cindex[c], cstable.sindex[s]])
+	return cstable.cs[cstable.cindex[c], cstable.sindex[s]]
 end
-ispresent(cstable::DiscreteCSTable, s::AbstractString, c::AbstractString) = 
-	ispresent(Bool, cstable, s, c)
 
 function findssfromc(cstable::DiscreteCSTable, c::AbstractString; 
 		present::Bool=true)
