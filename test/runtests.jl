@@ -5,3 +5,5 @@ using Test
 import Aqua
 
 Aqua.test_all(Biodiversity)
+
+include("types.jl")

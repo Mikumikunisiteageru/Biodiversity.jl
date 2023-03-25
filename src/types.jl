@@ -119,5 +119,5 @@ end
 function findccfroms(cstable::DiscreteCSTable, s::AbstractString; 
 		present::Bool=true)
 	check_s_indexed(cstable, s)
-	return cstable.cindex.list[:, cstable.cs[cstable.sindex[s]] .== present]
+	return cstable.cindex.list[cstable.cs[:, cstable.sindex[s]] .== present]
 end
