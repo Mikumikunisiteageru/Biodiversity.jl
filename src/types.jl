@@ -31,6 +31,9 @@ struct CVector{T<:Real} <: AbstractVector{T}
 		return new{T}(vector, cindex)
 	end
 end
+Base.length(v::CVector) = length(v.vector)
+Base.size(v::CVector) = size(v.vector)
+Base.getindex(v::CVector, i...) = getindex(v.vector, i...)
 
 struct CMatrix{T<:Real} <: AbstractMatrix{T}
 	matrix::Matrix{T}
@@ -42,6 +45,8 @@ struct CMatrix{T<:Real} <: AbstractMatrix{T}
 		return new{T}(matrix, cindex)
 	end
 end
+Base.size(m::CMatrix) = size(m.matrix)
+Base.getindex(m::CMatrix, i...) = getindex(m.matrix, i...)
 
 abstract type AbstractCSTable end
 
