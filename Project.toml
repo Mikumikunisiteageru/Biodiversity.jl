@@ -1,0 +1,19 @@
+name = "Biodiversity"
+uuid = "a05e01f8-506e-4221-9ff5-b35bde4a3a23"
+authors = ["Yu-Chang YANG <yang.yc.allium@gmail.com>"]
+version = "0.0.1"
+
+[deps]
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+
+[compat]
+Aqua = "0.6"
+DelimitedFiles = "1.0"
+julia = "1.0"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Aqua", "Test"]
