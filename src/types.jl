@@ -82,7 +82,7 @@ function DiscreteCSTable(cs::AbstractMatrix{<:Real},
 			sindex::AbstractVector{<:AbstractString})
 	return DiscreteCSTable(cs, StrIndex(cindex), StrIndex(sindex))
 end
-	
+
 function DiscreteCSTable(csrecords::AbstractVector{NTuple{2, String}})
 	cindex = StrIndex(sort!(unique!(first.(csrecords))))
 	sindex = StrIndex(sort!(unique!(last.(csrecords))))
@@ -120,4 +120,24 @@ function findccfroms(cstable::DiscreteCSTable, s::AbstractString;
 		present::Bool=true)
 	check_s_indexed(cstable, s)
 	return cstable.cindex.list[cstable.cs[:, cstable.sindex[s]] .== present]
+end
+
+struct ContinuousCSTable{T<:Real} <: AbstractCSTable
+	cs::Matrix{T}
+	cindex::StrIndex
+	sindex::StrIndex
+	function ContinuousCSTable(cs::AbstractMatrix{T}, 
+			cindex::StrIndex, sindex::StrIndex) where {T<:Real}
+		size(cs, 1) == length(cindex) || 
+			throw(DimensionMismatch("the numbers of communities do not match"))
+		size(cs, 2) == length(sindex) || 
+			throw(DimensionMismatch("the numbers of species do not match"))
+		return new{T}(csb, cindex, sindex)
+	end
+end
+
+function ContinuousCSTable(cs::AbstractMatrix{<:Real}, 
+			cindex::AbstractVector{<:AbstractString}, 
+			sindex::AbstractVector{<:AbstractString})
+	return ContinuousCSTable(cs, StrIndex(cindex), StrIndex(sindex))
 end
