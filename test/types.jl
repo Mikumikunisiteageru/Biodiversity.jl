@@ -5,7 +5,7 @@ using Test
 
 filename = "files/Allium.tsv"
 
-cstable = Biodiversity.DiscreteCSTable(filename, scpair=true)
+cstable = Biodiversity.BoolCSTable(filename, scpair=true)
 
 @test Biodiversity.ispresent(cstable, "Allium rude", "Gansu") == true
 @test Biodiversity.ispresent(cstable, "Allium rude", "Beijing") == false

@@ -62,11 +62,11 @@ function check_c_indexed(cstable::AbstractCSTable, c::AbstractString)
 	return
 end
 
-struct DiscreteCSTable <: AbstractCSTable
+struct BoolCSTable <: AbstractCSTable
 	cs::BitMatrix
 	cindex::StrIndex
 	sindex::StrIndex
-	function DiscreteCSTable(cs::AbstractMatrix{<:Real}, 
+	function BoolCSTable(cs::AbstractMatrix{<:Real}, 
 			cindex::StrIndex, sindex::StrIndex)
 		size(cs, 1) == length(cindex) || 
 			throw(DimensionMismatch("the numbers of communities do not match"))
@@ -77,56 +77,56 @@ struct DiscreteCSTable <: AbstractCSTable
 	end
 end
 
-function DiscreteCSTable(cs::AbstractMatrix{<:Real}, 
+function BoolCSTable(cs::AbstractMatrix{<:Real}, 
 			cindex::AbstractVector{<:AbstractString}, 
 			sindex::AbstractVector{<:AbstractString})
-	return DiscreteCSTable(cs, StrIndex(cindex), StrIndex(sindex))
+	return BoolCSTable(cs, StrIndex(cindex), StrIndex(sindex))
 end
 
-function DiscreteCSTable(csrecords::AbstractVector{NTuple{2, String}})
+function BoolCSTable(csrecords::AbstractVector{NTuple{2, String}})
 	cindex = StrIndex(sort!(unique!(first.(csrecords))))
 	sindex = StrIndex(sort!(unique!(last.(csrecords))))
 	cs = falses(cindex.len, sindex.len)
 	for (c, s) = csrecords
 		cs[cindex[c], sindex[s]] = 1f0
 	end
-	return DiscreteCSTable(cs, cindex, sindex)
+	return BoolCSTable(cs, cindex, sindex)
 end
 
-function DiscreteCSTable(filename::AbstractString; 
+function BoolCSTable(filename::AbstractString; 
 		delim::AbstractChar='\t', scpair::Bool=false)
 	rectable = readdlm(filename, delim, String)
 	size(rectable, 2) == 2 || throw(
 		DimensionMismatch("the TSV file does not contain exactly two columns"))
 	return scpair ? 
-		DiscreteCSTable(reverse.(Tuple.(eachrow(rectable)))) : 
-		DiscreteCSTable(Tuple.(eachrow(rectable)))
+		BoolCSTable(reverse.(Tuple.(eachrow(rectable)))) : 
+		BoolCSTable(Tuple.(eachrow(rectable)))
 end	
 
-function ispresent(cstable::DiscreteCSTable, 
+function ispresent(cstable::BoolCSTable, 
 		s::AbstractString, c::AbstractString)
 	check_s_indexed(cstable, s)
 	check_c_indexed(cstable, c)
 	return cstable.cs[cstable.cindex[c], cstable.sindex[s]]
 end
 
-function findssfromc(cstable::DiscreteCSTable, c::AbstractString; 
+function findssfromc(cstable::BoolCSTable, c::AbstractString; 
 		present::Bool=true)
 	check_c_indexed(cstable, c)
 	return cstable.sindex.list[cstable.cs[cstable.cindex[c], :] .== present]
 end
 
-function findccfroms(cstable::DiscreteCSTable, s::AbstractString; 
+function findccfroms(cstable::BoolCSTable, s::AbstractString; 
 		present::Bool=true)
 	check_s_indexed(cstable, s)
 	return cstable.cindex.list[cstable.cs[:, cstable.sindex[s]] .== present]
 end
 
-struct ContinuousCSTable{T<:Real} <: AbstractCSTable
+struct RealCSTable{T<:Real} <: AbstractCSTable
 	cs::Matrix{T}
 	cindex::StrIndex
 	sindex::StrIndex
-	function ContinuousCSTable(cs::AbstractMatrix{T}, 
+	function RealCSTable(cs::AbstractMatrix{T}, 
 			cindex::StrIndex, sindex::StrIndex) where {T<:Real}
 		size(cs, 1) == length(cindex) || 
 			throw(DimensionMismatch("the numbers of communities do not match"))
@@ -136,8 +136,8 @@ struct ContinuousCSTable{T<:Real} <: AbstractCSTable
 	end
 end
 
-function ContinuousCSTable(cs::AbstractMatrix{<:Real}, 
+function RealCSTable(cs::AbstractMatrix{<:Real}, 
 			cindex::AbstractVector{<:AbstractString}, 
 			sindex::AbstractVector{<:AbstractString})
-	return ContinuousCSTable(cs, StrIndex(cindex), StrIndex(sindex))
+	return RealCSTable(cs, StrIndex(cindex), StrIndex(sindex))
 end
